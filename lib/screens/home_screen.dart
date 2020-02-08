@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:theia/widgets/home/post_list.dart';
 
 class HomeScreen extends StatelessWidget {
+  static const String id = '/';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
