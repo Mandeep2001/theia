@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-// import 'package:theia/widgets/home/header.dart';
-import 'package:theia/widgets/home/post_list.dart';
+import 'package:theia/src/widgets/home/post_list.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String id = '/';

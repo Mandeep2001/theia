@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:theia/widgets/login/login_form.dart';
+import 'package:theia/src/widgets/login/login_form.dart';
 
 class Body extends StatelessWidget {
   @override
@@ -31,12 +30,9 @@ class Body extends StatelessWidget {
               SizedBox(width: 5.0),
               Text(
                 'Contattaci!',
-                style: Theme.of(context)
-                    .textTheme
-                    .caption
-                    .copyWith(
-                  decoration: TextDecoration.underline,
-                ),
+                style: Theme.of(context).textTheme.caption.copyWith(
+                      decoration: TextDecoration.underline,
+                    ),
               ),
             ],
           ),

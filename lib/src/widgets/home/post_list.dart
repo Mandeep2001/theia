@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:theia/widgets/home/post_element.dart';
+import 'package:theia/src/widgets/home/post_element.dart';
 
 class PostList extends StatelessWidget {
   @override
