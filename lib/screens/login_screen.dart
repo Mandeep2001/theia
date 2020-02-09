@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:theia/widgets/login/Body.dart';
-import 'package:theia/widgets/login/Header.dart';
+import 'package:theia/widgets/login/body.dart';
+import 'package:theia/widgets/login/header.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String id = '/login';
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +12,7 @@ class LoginScreen extends StatelessWidget {
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints viewportConstraints) {
           return SingleChildScrollView(
-            child: AnimatedContainer(
-              duration: Duration(microseconds: 200),
+            child: Container(
               constraints: BoxConstraints(
                 minHeight: viewportConstraints.maxHeight,
               ),
@@ -25,7 +22,7 @@ class LoginScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   Header(),
-                  Body(formKey: _formKey),
+                  Body(),
                 ],
               ),
             ),
@@ -35,5 +32,3 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
-
-
