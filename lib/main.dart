@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:theia/screens/home_screen.dart';
-import 'package:theia/screens/login_screen.dart';
-import 'package:theia/screens/splash_screen.dart';
+import 'file:///C:/dev/esercizi/flutter/theia/lib/src/screens/home_screen.dart';
+import 'file:///C:/dev/esercizi/flutter/theia/lib/src/screens/login_screen.dart';
+import 'file:///C:/dev/esercizi/flutter/theia/lib/src/screens/splash_screen.dart';
 
 void main() => runApp(Theia());
 

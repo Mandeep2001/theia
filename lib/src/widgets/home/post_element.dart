@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:theia/widgets/home/post_actions.dart';
-import 'package:theia/widgets/home/post_image.dart';
+import 'package:theia/src/widgets/home/post_actions.dart';
+import 'package:theia/src/widgets/home/post_image.dart';
 
 class PostElement extends StatefulWidget {
   const PostElement({Key key}) : super(key: key);
