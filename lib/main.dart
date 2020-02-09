@@ -15,25 +15,35 @@ class Theia extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color(0xFFF9564F),
         textTheme: Theme.of(context).textTheme.copyWith(
-              headline6: TextStyle(
+              headline4: TextStyle(
                 color: Colors.white,
                 fontSize: 34.0,
                 fontWeight: FontWeight.bold,
               ),
               caption: TextStyle(
-                fontSize: 16.0,
+                color: Colors.black54,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFFBDBDBD),
+                fontSize: 14.0,
               ),
-              subtitle1: TextStyle(
+              headline6: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w500,
                 fontSize: 20.0,
               ),
-          bodyText2: TextStyle(
-                color: Colors.black54,
+              bodyText2: TextStyle(
+                fontSize: 16.0,
                 fontWeight: FontWeight.w500,
-                fontSize: 14.0,
+                color: Color(0xFFBDBDBD),
+              ),
+              overline: TextStyle(
+                letterSpacing: 0.0,
+                fontSize: 12.0,
+                fontWeight: FontWeight.w400,
+              ),
+              button: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
               ),
             ),
       ),
