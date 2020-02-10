@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:theia/src/blocs/auth/bloc.dart';
 import 'package:theia/src/screens/home_screen.dart';
+import 'package:theia/src/widgets/common/cutom_dialog.dart';
 
 class BodyTop extends StatefulWidget {
   @override
@@ -13,6 +14,7 @@ class _BodyTopState extends State<BodyTop> {
   final _formKey = GlobalKey<FormState>();
   Bloc<AuthEvent, AuthState> _authBloc;
   FocusNode _passwordFocus;
+  FocusNode _loginButtonFocus;
   TextEditingController _usernameController;
   TextEditingController _passwordController;
 
@@ -25,6 +27,7 @@ class _BodyTopState extends State<BodyTop> {
     super.initState();
     _authBloc = BlocProvider.of<AuthBloc>(context);
     _passwordFocus = FocusNode();
+    _loginButtonFocus = FocusNode();
     _usernameController = TextEditingController();
     _passwordController = TextEditingController();
   }
@@ -34,69 +37,82 @@ class _BodyTopState extends State<BodyTop> {
     super.dispose();
     _authBloc.close();
     _passwordFocus.dispose();
+    _loginButtonFocus.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocListener(
       bloc: _authBloc,
-      builder: (BuildContext context, AuthState state) {
+      listener: (BuildContext context, AuthState state) {
         if (state is AuthErrorState) {
-          throw Exception('Da implementare');
-        }
-
-        if (state is LoginErrorState) {
-          _usernameError = state.loginResponse.usernameError;
-          _passwordError = state.loginResponse.passwordError;
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: 'Error',
+              description: state.message,
+              buttonText: 'Okay',
+            ),
+          );
         }
 
         if (state is LoginSuccessState) {
-          Navigator.pushNamed(context, HomeScreen.id);
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(HomeScreen.id, (route) => false);
         }
-
-        return Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Bentornato',
-                      style: Theme.of(context).textTheme.headline6,
-                    ),
-                    SizedBox(
-                      height: 25.0,
-                    ),
-                    _buildUsernameField(context),
-                    SizedBox(height: 6.0),
-                    _buildPasswordField(context),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Container(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Password dimenticata?',
-                        style: Theme.of(context).textTheme.caption,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                  ],
-                ),
-              ),
-              _buildSubmitButton(context, state),
-            ],
-          ),
-        );
       },
+      child: BlocBuilder(
+        bloc: _authBloc,
+        builder: (BuildContext context, AuthState state) {
+          if (state is LoginErrorState) {
+            _usernameError = state.loginResponse.usernameError;
+            _passwordError = state.loginResponse.passwordError;
+          }
+
+          return Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Bentornato',
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
+                      SizedBox(
+                        height: 25.0,
+                      ),
+                      _buildUsernameField(context),
+                      SizedBox(height: 6.0),
+                      _buildPasswordField(context),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Container(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'Password dimenticata?',
+                          style: Theme.of(context).textTheme.caption,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                    ],
+                  ),
+                ),
+                _buildSubmitButton(context, state),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -104,6 +120,7 @@ class _BodyTopState extends State<BodyTop> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       child: OutlineButton(
+        focusNode: _loginButtonFocus,
         padding: const EdgeInsets.symmetric(vertical: 14.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -113,7 +130,7 @@ class _BodyTopState extends State<BodyTop> {
         child: _getLoginButtonChild(context, state),
         highlightedBorderColor: Theme.of(context).primaryColor,
         textColor: Theme.of(context).primaryColor,
-        onPressed: _submitForm,
+        onPressed: () => _submitForm(context),
       ),
     );
   }
@@ -156,7 +173,7 @@ class _BodyTopState extends State<BodyTop> {
       controller: _passwordController,
       focusNode: _passwordFocus,
       textInputAction: TextInputAction.done,
-      onFieldSubmitted: (_) => _submitForm(),
+      onFieldSubmitted: (_) => _submitForm(context),
       obscureText: _obscureText,
       decoration: InputDecoration(
         errorText: _passwordError,
@@ -210,7 +227,8 @@ class _BodyTopState extends State<BodyTop> {
     return Text('Accedi');
   }
 
-  void _submitForm() {
+  void _submitForm(BuildContext context) {
+    FocusScope.of(context).requestFocus(_loginButtonFocus);
     if (_formKey.currentState.validate()) {
       _authBloc.add(
         LoginEvent(

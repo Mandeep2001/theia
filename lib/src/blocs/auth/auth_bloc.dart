@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:theia/src/exceptions/app_exception.dart';
 import 'package:theia/src/services/auth/auth_service.dart';
 
 import 'bloc.dart';
@@ -33,6 +34,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       } on SocketException {
         yield AuthErrorState();
+      } on AppException {
+        yield AuthErrorState();
+      } catch (e) {
+        AuthErrorState(message: 'E\' avvenuto un errore inaspettato');
       }
     }
   }
