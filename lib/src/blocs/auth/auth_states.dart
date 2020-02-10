@@ -7,6 +7,14 @@ class AuthUninitializedState extends AuthState {}
 
 class AuthLoadingState extends AuthState {}
 
+class AuthErrorState extends AuthState {
+  final String message;
+
+  AuthErrorState(
+      {this.message =
+          'Qualcosa è andato storto, controlla la tua connessione ad internet e riprova.'});
+}
+
 class LoginSuccessState extends AuthState {
   final User user;
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:theia/src/blocs/auth/bloc.dart';
+import 'package:theia/src/screens/home_screen.dart';
 
 class BodyTop extends StatefulWidget {
   @override
@@ -42,6 +43,19 @@ class _BodyTopState extends State<BodyTop> {
     return BlocBuilder(
       bloc: _authBloc,
       builder: (BuildContext context, AuthState state) {
+        if (state is AuthErrorState) {
+          throw Exception('Da implementare');
+        }
+
+        if (state is LoginErrorState) {
+          _usernameError = state.loginResponse.usernameError;
+          _passwordError = state.loginResponse.passwordError;
+        }
+
+        if (state is LoginSuccessState) {
+          Navigator.pushNamed(context, HomeScreen.id);
+        }
+
         return Form(
           key: _formKey,
           child: Column(
@@ -59,82 +73,9 @@ class _BodyTopState extends State<BodyTop> {
                     SizedBox(
                       height: 25.0,
                     ),
-                    TextFormField(
-                      controller: _usernameController,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(_passwordFocus);
-                      },
-                      decoration: InputDecoration(
-                        errorText: _usernameError,
-                        contentPadding: EdgeInsets.only(top: 15.0),
-                        prefixIcon: Icon(
-                          FontAwesomeIcons.user,
-                          size: 16.0,
-                        ),
-                        errorStyle:
-                            Theme.of(context).textTheme.overline.copyWith(
-                                  color: Colors.red,
-                                ),
-                        hintText: 'Nome utente',
-                        hintStyle: Theme.of(context).textTheme.bodyText2,
-                      ),
-                      validator: (value) {
-                        if (value.trim().isEmpty) {
-                          return 'Devi inserire un nome utente';
-                        }
-
-                        if (value.length < 3)
-                          return 'Il nome utente deve contenere almeno 3 caratteri';
-
-                        return null;
-                      },
-                    ),
+                    _buildUsernameField(context),
                     SizedBox(height: 6.0),
-                    TextFormField(
-                      controller: _passwordController,
-                      focusNode: _passwordFocus,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _submitForm(),
-                      obscureText: _obscureText,
-                      decoration: InputDecoration(
-                        errorText: _passwordError,
-                        contentPadding: EdgeInsets.only(top: 15.0),
-                        prefixIcon: Icon(
-                          FontAwesomeIcons.lock,
-                          size: 16.0,
-                        ),
-                        errorStyle:
-                            Theme.of(context).textTheme.overline.copyWith(
-                                  color: Colors.red,
-                                ),
-                        hintText: 'password',
-                        hintStyle: Theme.of(context).textTheme.bodyText2,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? FontAwesomeIcons.eye
-                                : FontAwesomeIcons.eyeSlash,
-                            color: Colors.black38,
-                            size: 16.0,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value.trim().isEmpty)
-                          return 'Devi inserire una password';
-
-                        if (value.length < 6)
-                          return 'La password deve contenere almeno 6 caratteri';
-
-                        return null;
-                      },
-                    ),
+                    _buildPasswordField(context),
                     SizedBox(
                       height: 10.0,
                     ),
@@ -151,24 +92,104 @@ class _BodyTopState extends State<BodyTop> {
                   ],
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: OutlineButton(
-                  padding: const EdgeInsets.symmetric(vertical: 14.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  borderSide: BorderSide(
-                      width: 2.0, color: Theme.of(context).primaryColor),
-                  child: _getLoginButtonChild(context, state),
-                  highlightedBorderColor: Theme.of(context).primaryColor,
-                  textColor: Theme.of(context).primaryColor,
-                  onPressed: _submitForm,
-                ),
-              ),
+              _buildSubmitButton(context, state),
             ],
           ),
         );
+      },
+    );
+  }
+
+  Container _buildSubmitButton(BuildContext context, AuthState state) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: OutlineButton(
+        padding: const EdgeInsets.symmetric(vertical: 14.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        borderSide:
+            BorderSide(width: 2.0, color: Theme.of(context).primaryColor),
+        child: _getLoginButtonChild(context, state),
+        highlightedBorderColor: Theme.of(context).primaryColor,
+        textColor: Theme.of(context).primaryColor,
+        onPressed: _submitForm,
+      ),
+    );
+  }
+
+  TextFormField _buildUsernameField(BuildContext context) {
+    return TextFormField(
+      controller: _usernameController,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (_) {
+        FocusScope.of(context).requestFocus(_passwordFocus);
+      },
+      decoration: InputDecoration(
+        errorText: _usernameError,
+        contentPadding: EdgeInsets.only(top: 15.0),
+        prefixIcon: Icon(
+          FontAwesomeIcons.user,
+          size: 16.0,
+        ),
+        errorStyle: Theme.of(context).textTheme.overline.copyWith(
+              color: Colors.red,
+            ),
+        hintText: 'Nome utente',
+        hintStyle: Theme.of(context).textTheme.bodyText2,
+      ),
+      validator: (value) {
+        if (value.trim().isEmpty) {
+          return 'Devi inserire un nome utente';
+        }
+
+        if (value.length < 3)
+          return 'Il nome utente deve contenere almeno 3 caratteri';
+
+        return null;
+      },
+    );
+  }
+
+  TextFormField _buildPasswordField(BuildContext context) {
+    return TextFormField(
+      controller: _passwordController,
+      focusNode: _passwordFocus,
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (_) => _submitForm(),
+      obscureText: _obscureText,
+      decoration: InputDecoration(
+        errorText: _passwordError,
+        contentPadding: EdgeInsets.only(top: 15.0),
+        prefixIcon: Icon(
+          FontAwesomeIcons.lock,
+          size: 16.0,
+        ),
+        errorStyle: Theme.of(context).textTheme.overline.copyWith(
+              color: Colors.red,
+            ),
+        hintText: 'password',
+        hintStyle: Theme.of(context).textTheme.bodyText2,
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
+            color: Colors.black38,
+            size: 16.0,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+      ),
+      validator: (value) {
+        if (value.trim().isEmpty) return 'Devi inserire una password';
+
+        if (value.length < 6)
+          return 'La password deve contenere almeno 6 caratteri';
+
+        return null;
       },
     );
   }
@@ -184,10 +205,6 @@ class _BodyTopState extends State<BodyTop> {
           strokeWidth: 2.5,
         ),
       );
-    }
-
-    if (state is LoginSuccessState) {
-      return Text(state.user.username);
     }
 
     return Text('Accedi');

@@ -11,20 +11,33 @@ class ConcreteAuthService implements AuthService {
   Future<LoginResponse> login(String username, String password) async {
     var response;
 
-    try {
-      response = await http.post('$kApiBaseUrl/auth/login',
-          body: jsonEncode({'username': username, 'password': password}),
-          headers: {HttpHeaders.contentTypeHeader: 'application/json'});
-    } catch (e) {
-      print(e);
-      return LoginResponse(success: false);
-    }
+    response = await http.post('$kApiBaseUrl/auth/login',
+        body: jsonEncode({'username': username, 'password': password}),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'});
 
     if (response.statusCode == HttpStatus.ok) {
       return LoginResponse(
-          success: true, user: User.fromJson(jsonDecode(response.body)));
+        success: true,
+        user: User.fromJson(
+          jsonDecode(response.body),
+        ),
+      );
+    }
+    if (response.statusCode == HttpStatus.notFound) {
+      return LoginResponse(
+          success: false,
+          usernameError: 'Nessun utente trovato per questo nome utente');
+    }
+    if (response.statusCode == HttpStatus.unauthorized) {
+      return LoginResponse(
+        success: false,
+        passwordError: 'Password non corretta',
+      );
     }
 
-    return LoginResponse(success: false);
+    return LoginResponse(
+        success: false,
+        generalError:
+            'Qualcosa è andato storto, controlla la tua connessione ad internet e riprova.');
   }
 }
