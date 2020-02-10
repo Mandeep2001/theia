@@ -12,14 +12,20 @@ class _BodyTopState extends State<BodyTop> {
   final _formKey = GlobalKey<FormState>();
   Bloc<AuthEvent, AuthState> _authBloc;
   FocusNode _passwordFocus;
+  TextEditingController _usernameController;
+  TextEditingController _passwordController;
 
   bool _obscureText = true;
+  String _usernameError;
+  String _passwordError;
 
   @override
   void initState() {
     super.initState();
     _authBloc = BlocProvider.of<AuthBloc>(context);
     _passwordFocus = FocusNode();
+    _usernameController = TextEditingController();
+    _passwordController = TextEditingController();
   }
 
   @override
@@ -27,6 +33,8 @@ class _BodyTopState extends State<BodyTop> {
     super.dispose();
     _authBloc.close();
     _passwordFocus.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
   }
 
   @override
@@ -52,11 +60,13 @@ class _BodyTopState extends State<BodyTop> {
                       height: 25.0,
                     ),
                     TextFormField(
+                      controller: _usernameController,
                       textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (v) {
+                      onFieldSubmitted: (_) {
                         FocusScope.of(context).requestFocus(_passwordFocus);
                       },
                       decoration: InputDecoration(
+                        errorText: _usernameError,
                         contentPadding: EdgeInsets.only(top: 15.0),
                         prefixIcon: Icon(
                           FontAwesomeIcons.user,
@@ -66,7 +76,7 @@ class _BodyTopState extends State<BodyTop> {
                             Theme.of(context).textTheme.overline.copyWith(
                                   color: Colors.red,
                                 ),
-                        hintText: 'nome utente',
+                        hintText: 'Nome utente',
                         hintStyle: Theme.of(context).textTheme.bodyText2,
                       ),
                       validator: (value) {
@@ -82,11 +92,13 @@ class _BodyTopState extends State<BodyTop> {
                     ),
                     SizedBox(height: 6.0),
                     TextFormField(
+                      controller: _passwordController,
                       focusNode: _passwordFocus,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _submitForm(),
                       obscureText: _obscureText,
                       decoration: InputDecoration(
+                        errorText: _passwordError,
                         contentPadding: EdgeInsets.only(top: 15.0),
                         prefixIcon: Icon(
                           FontAwesomeIcons.lock,
@@ -140,9 +152,9 @@ class _BodyTopState extends State<BodyTop> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 16.0),
+                margin: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: OutlineButton(
-                  padding: EdgeInsets.symmetric(vertical: 14.0),
+                  padding: const EdgeInsets.symmetric(vertical: 14.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
@@ -174,16 +186,19 @@ class _BodyTopState extends State<BodyTop> {
       );
     }
 
+    if (state is LoginSuccessState) {
+      return Text(state.user.username);
+    }
+
     return Text('Accedi');
   }
 
   void _submitForm() {
     if (_formKey.currentState.validate()) {
-      _authBloc.add(LoginEvent());
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Processing Data'),
-        ),
+      _authBloc.add(
+        LoginEvent(
+            username: _usernameController.text,
+            password: _passwordController.text),
       );
     }
   }
