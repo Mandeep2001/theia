@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:theia/src/widgets/common/cutom_dialog.dart';
 import 'package:theia/src/widgets/login/login_form.dart';
 
 class Body extends StatelessWidget {
@@ -16,7 +17,7 @@ class Body extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          BodyTop(),
+          LoginForm(),
           SizedBox(
             height: 10.0,
           ),
@@ -53,20 +54,44 @@ class Body extends StatelessWidget {
           SizedBox(
             height: 10.0,
           ),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(vertical: 15.0),
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+//          GestureDetector(
+//            onTap: () {},
+//            child: Container(
+//              alignment: Alignment.center,
+//              padding: EdgeInsets.symmetric(vertical: 15.0),
+//              margin: EdgeInsets.symmetric(horizontal: 16.0),
+//              decoration: BoxDecoration(
+//                color: Theme.of(context).primaryColor,
+//                borderRadius: BorderRadius.circular(10.0),
+//              ),
+//              child: Text(
+//                'Creane uno!',
+//                style: Theme.of(context).textTheme.button,
+//              ),
+//            ),
+//          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            child: RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              padding: EdgeInsets.symmetric(vertical: 14.0),
+              color: Theme.of(context).primaryColor,
               child: Text(
                 'Creane uno!',
                 style: Theme.of(context).textTheme.button,
               ),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => CustomDialog(
+                    title: 'Error',
+                    description:
+                        'Questa funzionalità deve essere ancora implementata',
+                    buttonText: 'Okay',
+                  ),
+                );
+              },
             ),
           ),
         ],
