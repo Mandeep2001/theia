@@ -120,6 +120,7 @@ class _LoginFormState extends State<LoginForm> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       child: OutlineButton(
+        color: Colors.white,
         focusNode: _loginButtonFocus,
         padding: const EdgeInsets.symmetric(vertical: 14.0),
         shape: RoundedRectangleBorder(
