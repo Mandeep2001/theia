@@ -28,7 +28,7 @@ class Theia extends StatelessWidget {
               headline6: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.w500,
-                fontSize: 20.0,
+                fontSize: 24.0,
               ),
               bodyText2: TextStyle(
                 fontSize: 16.0,

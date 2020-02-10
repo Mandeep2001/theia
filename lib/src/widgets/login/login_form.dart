@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:theia/src/blocs/auth/bloc.dart';
+import 'package:theia/src/screens/home_screen.dart';
+import 'package:theia/src/widgets/common/cutom_dialog.dart';
 
 class BodyTop extends StatefulWidget {
   @override
@@ -12,14 +14,22 @@ class _BodyTopState extends State<BodyTop> {
   final _formKey = GlobalKey<FormState>();
   Bloc<AuthEvent, AuthState> _authBloc;
   FocusNode _passwordFocus;
+  FocusNode _loginButtonFocus;
+  TextEditingController _usernameController;
+  TextEditingController _passwordController;
 
   bool _obscureText = true;
+  String _usernameError;
+  String _passwordError;
 
   @override
   void initState() {
     super.initState();
     _authBloc = BlocProvider.of<AuthBloc>(context);
     _passwordFocus = FocusNode();
+    _loginButtonFocus = FocusNode();
+    _usernameController = TextEditingController();
+    _passwordController = TextEditingController();
   }
 
   @override
@@ -27,136 +37,176 @@ class _BodyTopState extends State<BodyTop> {
     super.dispose();
     _authBloc.close();
     _passwordFocus.dispose();
+    _loginButtonFocus.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocListener(
       bloc: _authBloc,
-      builder: (BuildContext context, AuthState state) {
-        return Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Bentornato',
-                      style: Theme.of(context).textTheme.headline6,
-                    ),
-                    SizedBox(
-                      height: 25.0,
-                    ),
-                    TextFormField(
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (v) {
-                        FocusScope.of(context).requestFocus(_passwordFocus);
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 15.0),
-                        prefixIcon: Icon(
-                          FontAwesomeIcons.user,
-                          size: 16.0,
-                        ),
-                        errorStyle:
-                            Theme.of(context).textTheme.overline.copyWith(
-                                  color: Colors.red,
-                                ),
-                        hintText: 'nome utente',
-                        hintStyle: Theme.of(context).textTheme.bodyText2,
+      listener: (BuildContext context, AuthState state) {
+        if (state is AuthErrorState) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => CustomDialog(
+              title: 'Error',
+              description: state.message,
+              buttonText: 'Okay',
+            ),
+          );
+        }
+
+        if (state is LoginSuccessState) {
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(HomeScreen.id, (route) => false);
+        }
+      },
+      child: BlocBuilder(
+        bloc: _authBloc,
+        builder: (BuildContext context, AuthState state) {
+          if (state is LoginErrorState) {
+            _usernameError = state.loginResponse.usernameError;
+            _passwordError = state.loginResponse.passwordError;
+          }
+
+          return Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Bentornato',
+                        style: Theme.of(context).textTheme.headline6,
                       ),
-                      validator: (value) {
-                        if (value.trim().isEmpty) {
-                          return 'Devi inserire un nome utente';
-                        }
-
-                        if (value.length < 3)
-                          return 'Il nome utente deve contenere almeno 3 caratteri';
-
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 6.0),
-                    TextFormField(
-                      focusNode: _passwordFocus,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _submitForm(),
-                      obscureText: _obscureText,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 15.0),
-                        prefixIcon: Icon(
-                          FontAwesomeIcons.lock,
-                          size: 16.0,
-                        ),
-                        errorStyle:
-                            Theme.of(context).textTheme.overline.copyWith(
-                                  color: Colors.red,
-                                ),
-                        hintText: 'password',
-                        hintStyle: Theme.of(context).textTheme.bodyText2,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? FontAwesomeIcons.eye
-                                : FontAwesomeIcons.eyeSlash,
-                            color: Colors.black38,
-                            size: 16.0,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
+                      SizedBox(
+                        height: 25.0,
+                      ),
+                      _buildUsernameField(context),
+                      SizedBox(height: 6.0),
+                      _buildPasswordField(context),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Container(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'Password dimenticata?',
+                          style: Theme.of(context).textTheme.caption,
                         ),
                       ),
-                      validator: (value) {
-                        if (value.trim().isEmpty)
-                          return 'Devi inserire una password';
-
-                        if (value.length < 6)
-                          return 'La password deve contenere almeno 6 caratteri';
-
-                        return null;
-                      },
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Container(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'Password dimenticata?',
-                        style: Theme.of(context).textTheme.caption,
+                      SizedBox(
+                        height: 20.0,
                       ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 16.0),
-                child: OutlineButton(
-                  padding: EdgeInsets.symmetric(vertical: 14.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    ],
                   ),
-                  borderSide: BorderSide(
-                      width: 2.0, color: Theme.of(context).primaryColor),
-                  child: _getLoginButtonChild(context, state),
-                  highlightedBorderColor: Theme.of(context).primaryColor,
-                  textColor: Theme.of(context).primaryColor,
-                  onPressed: _submitForm,
                 ),
-              ),
-            ],
+                _buildSubmitButton(context, state),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Container _buildSubmitButton(BuildContext context, AuthState state) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: OutlineButton(
+        focusNode: _loginButtonFocus,
+        padding: const EdgeInsets.symmetric(vertical: 14.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        borderSide:
+            BorderSide(width: 2.0, color: Theme.of(context).primaryColor),
+        child: _getLoginButtonChild(context, state),
+        highlightedBorderColor: Theme.of(context).primaryColor,
+        textColor: Theme.of(context).primaryColor,
+        onPressed: () => _submitForm(context),
+      ),
+    );
+  }
+
+  TextFormField _buildUsernameField(BuildContext context) {
+    return TextFormField(
+      controller: _usernameController,
+      textInputAction: TextInputAction.next,
+      onFieldSubmitted: (_) {
+        FocusScope.of(context).requestFocus(_passwordFocus);
+      },
+      decoration: InputDecoration(
+        errorText: _usernameError,
+        contentPadding: EdgeInsets.only(top: 15.0),
+        prefixIcon: Icon(
+          FontAwesomeIcons.user,
+          size: 16.0,
+        ),
+        errorStyle: Theme.of(context).textTheme.overline.copyWith(
+              color: Colors.red,
+            ),
+        hintText: 'Nome utente',
+        hintStyle: Theme.of(context).textTheme.bodyText2,
+      ),
+      validator: (value) {
+        if (value.trim().isEmpty) {
+          return 'Devi inserire un nome utente';
+        }
+
+        if (value.length < 3)
+          return 'Il nome utente deve contenere almeno 3 caratteri';
+
+        return null;
+      },
+    );
+  }
+
+  TextFormField _buildPasswordField(BuildContext context) {
+    return TextFormField(
+      controller: _passwordController,
+      focusNode: _passwordFocus,
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: (_) => _submitForm(context),
+      obscureText: _obscureText,
+      decoration: InputDecoration(
+        errorText: _passwordError,
+        contentPadding: EdgeInsets.only(top: 15.0),
+        prefixIcon: Icon(
+          FontAwesomeIcons.lock,
+          size: 16.0,
+        ),
+        errorStyle: Theme.of(context).textTheme.overline.copyWith(
+              color: Colors.red,
+            ),
+        hintText: 'password',
+        hintStyle: Theme.of(context).textTheme.bodyText2,
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
+            color: Colors.black38,
+            size: 16.0,
           ),
-        );
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+      ),
+      validator: (value) {
+        if (value.trim().isEmpty) return 'Devi inserire una password';
+
+        if (value.length < 6)
+          return 'La password deve contenere almeno 6 caratteri';
+
+        return null;
       },
     );
   }
@@ -177,13 +227,13 @@ class _BodyTopState extends State<BodyTop> {
     return Text('Accedi');
   }
 
-  void _submitForm() {
+  void _submitForm(BuildContext context) {
+    FocusScope.of(context).requestFocus(_loginButtonFocus);
     if (_formKey.currentState.validate()) {
-      _authBloc.add(LoginEvent());
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Processing Data'),
-        ),
+      _authBloc.add(
+        LoginEvent(
+            username: _usernameController.text,
+            password: _passwordController.text),
       );
     }
   }
