@@ -6,38 +6,38 @@ import 'package:theia/src/services/auth/auth_service.dart';
 
 import 'bloc.dart';
 
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
+class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthService _authService;
 
-  AuthBloc(this._authService);
+  LoginBloc(this._authService);
 
   @override
-  AuthState get initialState => AuthUninitializedState();
+  LoginState get initialState => LoginUninitializedState();
 
   @override
-  void onTransition(Transition<AuthEvent, AuthState> transition) {
+  void onTransition(Transition<LoginEvent, LoginState> transition) {
     super.onTransition(transition);
     print(transition);
   }
 
   @override
-  Stream<AuthState> mapEventToState(AuthEvent event) async* {
-    if (event is LoginEvent) {
-      yield AuthLoadingState();
+  Stream<LoginState> mapEventToState(LoginEvent event) async* {
+    if (event is SignInEvent) {
+      yield LoginLoadingState();
       try {
         final response =
             await _authService.login(event.username, event.password);
         if (response.success) {
           yield LoginSuccessState(response.user);
         } else {
-          yield LoginErrorState(response);
+          yield CredentialsErrorState(response);
         }
       } on SocketException {
-        yield AuthErrorState();
+        yield LoginErrorState();
       } on AppException {
-        yield AuthErrorState();
+        yield LoginErrorState();
       } catch (e) {
-        AuthErrorState(message: 'E\' avvenuto un errore inaspettato');
+        LoginErrorState(message: 'E\' avvenuto un errore inaspettato');
       }
     }
   }

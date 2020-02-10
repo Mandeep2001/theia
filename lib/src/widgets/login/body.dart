@@ -16,7 +16,7 @@ class Body extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          BodyTop(),
+          LoginForm(),
           SizedBox(
             height: 10.0,
           ),

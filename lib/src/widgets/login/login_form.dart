@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:theia/src/blocs/auth/bloc.dart';
+import 'package:theia/src/blocs/auth/login/bloc.dart';
 import 'package:theia/src/screens/home_screen.dart';
 import 'package:theia/src/widgets/common/cutom_dialog.dart';
 
-class BodyTop extends StatefulWidget {
+class LoginForm extends StatefulWidget {
   @override
-  _BodyTopState createState() => _BodyTopState();
+  _LoginFormState createState() => _LoginFormState();
 }
 
-class _BodyTopState extends State<BodyTop> {
+class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  Bloc<AuthEvent, AuthState> _authBloc;
+  Bloc<LoginEvent, LoginState> _loginBloc;
   FocusNode _passwordFocus;
   FocusNode _loginButtonFocus;
   TextEditingController _usernameController;
@@ -25,7 +25,7 @@ class _BodyTopState extends State<BodyTop> {
   @override
   void initState() {
     super.initState();
-    _authBloc = BlocProvider.of<AuthBloc>(context);
+    _loginBloc = BlocProvider.of<LoginBloc>(context);
     _passwordFocus = FocusNode();
     _loginButtonFocus = FocusNode();
     _usernameController = TextEditingController();
@@ -35,7 +35,7 @@ class _BodyTopState extends State<BodyTop> {
   @override
   void dispose() {
     super.dispose();
-    _authBloc.close();
+    _loginBloc.close();
     _passwordFocus.dispose();
     _loginButtonFocus.dispose();
     _usernameController.dispose();
@@ -45,9 +45,9 @@ class _BodyTopState extends State<BodyTop> {
   @override
   Widget build(BuildContext context) {
     return BlocListener(
-      bloc: _authBloc,
-      listener: (BuildContext context, AuthState state) {
-        if (state is AuthErrorState) {
+      bloc: _loginBloc,
+      listener: (BuildContext context, LoginState state) {
+        if (state is LoginErrorState) {
           showDialog(
             context: context,
             builder: (BuildContext context) => CustomDialog(
@@ -64,9 +64,9 @@ class _BodyTopState extends State<BodyTop> {
         }
       },
       child: BlocBuilder(
-        bloc: _authBloc,
-        builder: (BuildContext context, AuthState state) {
-          if (state is LoginErrorState) {
+        bloc: _loginBloc,
+        builder: (BuildContext context, LoginState state) {
+          if (state is CredentialsErrorState) {
             _usernameError = state.loginResponse.usernameError;
             _passwordError = state.loginResponse.passwordError;
           }
@@ -116,7 +116,7 @@ class _BodyTopState extends State<BodyTop> {
     );
   }
 
-  Container _buildSubmitButton(BuildContext context, AuthState state) {
+  Container _buildSubmitButton(BuildContext context, LoginState state) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       child: OutlineButton(
@@ -211,8 +211,8 @@ class _BodyTopState extends State<BodyTop> {
     );
   }
 
-  Widget _getLoginButtonChild(BuildContext context, AuthState state) {
-    if (state is AuthLoadingState) {
+  Widget _getLoginButtonChild(BuildContext context, LoginState state) {
+    if (state is LoginLoadingState) {
       return SizedBox(
         width: 16.0,
         height: 16.0,
@@ -230,8 +230,8 @@ class _BodyTopState extends State<BodyTop> {
   void _submitForm(BuildContext context) {
     FocusScope.of(context).requestFocus(_loginButtonFocus);
     if (_formKey.currentState.validate()) {
-      _authBloc.add(
-        LoginEvent(
+      _loginBloc.add(
+        SignInEvent(
             username: _usernameController.text,
             password: _passwordController.text),
       );
