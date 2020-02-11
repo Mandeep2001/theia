@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:theia/src/blocs/auth/login/bloc.dart';
 import 'package:theia/src/screens/home_screen.dart';
 import 'package:theia/src/widgets/common/cutom_dialog.dart';
+import 'package:theia/src/widgets/login/auth_text_field.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -136,26 +137,16 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  TextFormField _buildUsernameField(BuildContext context) {
-    return TextFormField(
+  AuthTextField _buildUsernameField(BuildContext context) {
+    return AuthTextField(
+      hintText: 'Nome utente',
       controller: _usernameController,
+      prefixIcon: FontAwesomeIcons.user,
+      errorText: _usernameError,
       textInputAction: TextInputAction.next,
       onFieldSubmitted: (_) {
         FocusScope.of(context).requestFocus(_passwordFocus);
       },
-      decoration: InputDecoration(
-        errorText: _usernameError,
-        contentPadding: EdgeInsets.only(top: 15.0),
-        prefixIcon: Icon(
-          FontAwesomeIcons.user,
-          size: 16.0,
-        ),
-        errorStyle: Theme.of(context).textTheme.overline.copyWith(
-              color: Colors.red,
-            ),
-        hintText: 'Nome utente',
-        hintStyle: Theme.of(context).textTheme.bodyText2,
-      ),
       validator: (value) {
         if (value.trim().isEmpty) {
           return 'Devi inserire un nome utente';
@@ -169,37 +160,27 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  TextFormField _buildPasswordField(BuildContext context) {
-    return TextFormField(
+  AuthTextField _buildPasswordField(BuildContext context) {
+    return AuthTextField(
       controller: _passwordController,
       focusNode: _passwordFocus,
       textInputAction: TextInputAction.done,
       onFieldSubmitted: (_) => _submitForm(context),
       obscureText: _obscureText,
-      decoration: InputDecoration(
-        errorText: _passwordError,
-        contentPadding: EdgeInsets.only(top: 15.0),
-        prefixIcon: Icon(
-          FontAwesomeIcons.lock,
+      prefixIcon: FontAwesomeIcons.lock,
+      hintText: 'password',
+      errorText: _passwordError,
+      suffixIcon: IconButton(
+        icon: Icon(
+          _obscureText ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
+          color: Colors.black38,
           size: 16.0,
         ),
-        errorStyle: Theme.of(context).textTheme.overline.copyWith(
-              color: Colors.red,
-            ),
-        hintText: 'password',
-        hintStyle: Theme.of(context).textTheme.bodyText2,
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscureText ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
-            color: Colors.black38,
-            size: 16.0,
-          ),
-          onPressed: () {
-            setState(() {
-              _obscureText = !_obscureText;
-            });
-          },
-        ),
+        onPressed: () {
+          setState(() {
+            _obscureText = !_obscureText;
+          });
+        },
       ),
       validator: (value) {
         if (value.trim().isEmpty) return 'Devi inserire una password';

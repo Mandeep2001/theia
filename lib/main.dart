@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'file:///C:/dev/esercizi/flutter/theia/lib/src/screens/home_screen.dart';
-import 'file:///C:/dev/esercizi/flutter/theia/lib/src/screens/login_screen.dart';
-import 'file:///C:/dev/esercizi/flutter/theia/lib/src/screens/splash_screen.dart';
+import 'package:theia/src/screens/home_screen.dart';
+import 'package:theia/src/screens/login_screen.dart';
+import 'package:theia/src/screens/splash_screen.dart';
 
 void main() => runApp(Theia());
 
@@ -47,7 +46,7 @@ class Theia extends StatelessWidget {
               ),
             ),
       ),
-      initialRoute: LoginScreen.id,
+      home: LoginScreen(),
       routes: {
         SplashScreen.id: (context) => SplashScreen(),
         LoginScreen.id: (context) => LoginScreen(),

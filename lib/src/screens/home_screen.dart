@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:theia/src/widgets/home/post_list.dart';
 
 class HomeScreen extends StatelessWidget {
-  static const String id = '/';
+  static const String id = '/home';
 
   @override
   Widget build(BuildContext context) {
