@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:theia/src/blocs/auth/login/bloc.dart';
 import 'package:theia/src/screens/home_screen.dart';
+import 'package:theia/src/widgets/auth/password_field.dart';
+import 'package:theia/src/widgets/auth/submit_button.dart';
+import 'package:theia/src/widgets/auth/username_field.dart';
 import 'package:theia/src/widgets/common/cutom_dialog.dart';
-import 'package:theia/src/widgets/login/auth_text_field.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -19,7 +20,6 @@ class _LoginFormState extends State<LoginForm> {
   TextEditingController _usernameController;
   TextEditingController _passwordController;
 
-  bool _obscureText = true;
   String _usernameError;
   String _passwordError;
 
@@ -89,9 +89,18 @@ class _LoginFormState extends State<LoginForm> {
                       SizedBox(
                         height: 25.0,
                       ),
-                      _buildUsernameField(context),
+                      UsernameField(
+                        errorText: _usernameError,
+                        controller: _usernameController,
+                        nextFocus: _passwordFocus,
+                      ),
                       SizedBox(height: 6.0),
-                      _buildPasswordField(context),
+                      PasswordField(
+                        controller: _passwordController,
+                        errorText: _passwordError,
+                        focusNode: _passwordFocus,
+                        onFieldSubmit: (_) => _submitForm(context),
+                      ),
                       SizedBox(
                         height: 10.0,
                       ),
@@ -108,88 +117,16 @@ class _LoginFormState extends State<LoginForm> {
                     ],
                   ),
                 ),
-                _buildSubmitButton(context, state),
+                SubmitButton(
+                  focusNode: _loginButtonFocus,
+                  child: _getLoginButtonChild(context, state),
+                  onPressed: () => _submitForm(context),
+                ),
               ],
             ),
           );
         },
       ),
-    );
-  }
-
-  Container _buildSubmitButton(BuildContext context, LoginState state) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: OutlineButton(
-        color: Colors.white,
-        focusNode: _loginButtonFocus,
-        padding: const EdgeInsets.symmetric(vertical: 14.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        borderSide:
-            BorderSide(width: 2.0, color: Theme.of(context).primaryColor),
-        child: _getLoginButtonChild(context, state),
-        highlightedBorderColor: Theme.of(context).primaryColor,
-        textColor: Theme.of(context).primaryColor,
-        onPressed: () => _submitForm(context),
-      ),
-    );
-  }
-
-  AuthTextField _buildUsernameField(BuildContext context) {
-    return AuthTextField(
-      hintText: 'Nome utente',
-      controller: _usernameController,
-      prefixIcon: FontAwesomeIcons.user,
-      errorText: _usernameError,
-      textInputAction: TextInputAction.next,
-      onFieldSubmitted: (_) {
-        FocusScope.of(context).requestFocus(_passwordFocus);
-      },
-      validator: (value) {
-        if (value.trim().isEmpty) {
-          return 'Devi inserire un nome utente';
-        }
-
-        if (value.length < 3)
-          return 'Il nome utente deve contenere almeno 3 caratteri';
-
-        return null;
-      },
-    );
-  }
-
-  AuthTextField _buildPasswordField(BuildContext context) {
-    return AuthTextField(
-      controller: _passwordController,
-      focusNode: _passwordFocus,
-      textInputAction: TextInputAction.done,
-      onFieldSubmitted: (_) => _submitForm(context),
-      obscureText: _obscureText,
-      prefixIcon: FontAwesomeIcons.lock,
-      hintText: 'password',
-      errorText: _passwordError,
-      suffixIcon: IconButton(
-        icon: Icon(
-          _obscureText ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
-          color: Colors.black38,
-          size: 16.0,
-        ),
-        onPressed: () {
-          setState(() {
-            _obscureText = !_obscureText;
-          });
-        },
-      ),
-      validator: (value) {
-        if (value.trim().isEmpty) return 'Devi inserire una password';
-
-        if (value.length < 6)
-          return 'La password deve contenere almeno 6 caratteri';
-
-        return null;
-      },
     );
   }
 

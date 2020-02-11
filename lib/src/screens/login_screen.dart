@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:theia/src/blocs/auth/login/bloc.dart';
 import 'package:theia/src/services/auth/concrete_auth_service.dart';
-import 'package:theia/src/widgets/login/body.dart';
-import 'package:theia/src/widgets/login/header.dart';
+import 'package:theia/src/widgets/auth/header.dart';
+import 'package:theia/src/widgets/auth/login_body.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String id = '/login';
